@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import PhoneOTP
 from .serializers import VerifySerializer, AuthSerializer
-from .utils import generate_password, generate_6_digit_code, expiry_in_minutes, generate_username
+from .utils import generate_password, generate_6_digit_code, expiry_in_minutes, generate_username, register_device
 from django.contrib.auth import get_user_model
 
 from ..shared.utils.custom_response import CustomResponse
@@ -106,6 +106,7 @@ class VerifyCodeAPIView(APIView):
             tokens = user.generate_jwt_tokens()
             user.is_active = True
             user.save()
+            register_device(request, user)
 
             return CustomResponse.success(
                 request=request,

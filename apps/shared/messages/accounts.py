@@ -147,4 +147,13 @@ ACCOUNT_MESSAGES: Dict[str, MessageTemplate] = {
         },
         "status_code": 200
     },
+    "OTP_SENT": {
+        "id": "OTP_SENT",
+        "messages": {
+            "en": "Verification code sent successfully",
+            "uz": "Tasdiqlash kodi muvaffaqiyatli yuborildi",
+            "ru": "Код подтверждения успешно отправлен",
+        },
+        "status_code": 200
+    },
 }

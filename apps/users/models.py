@@ -25,6 +25,37 @@ class User(AbstractUser):
         verbose_name_plural = 'Users'
 
 
+class DeviceModel(models.Model):
+    DEVICE_CHOICES = (
+        ('mobile', 'Mobile'),
+        ('tablet', 'Tablet'),
+        ('desktop', 'Desktop'),
+        ('laptop', 'Laptop'),
+        ('other', 'Other'),
+    )
+
+    OS_CHOICES = (
+        ('android', 'Android'),
+        ('ios', 'iOS'),
+        ('windows', 'Windows'),
+        ('macos', 'macOS'),
+        ('linux', 'Linux'),
+        ('other', 'Other'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
+    device_id = models.CharField(max_length=255, unique=True, help_text="Unique device identifier")
+    ip = models.GenericIPAddressField()
+    device = models.CharField(max_length=10, choices=DEVICE_CHOICES, default='other')
+    os = models.CharField(max_length=10, choices=OS_CHOICES, null=True, blank=True)
+    model = models.CharField(max_length=100, null=True, blank=True, help_text="Device model name")
+    browser = models.CharField(max_length=50, null=True, blank=True)
+    browser_version = models.CharField(max_length=20, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_login = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class PhoneOTP(models.Model):
     phone = models.CharField(max_length=20, db_index=True)
     code = models.CharField(max_length=6)
