@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 
 class CustomPageNumberPagination(PageNumberPagination):
@@ -31,7 +32,7 @@ class CustomPageNumberPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         if self.page is None:
-            return {
+            return Response({
                 'pagination': {
                     'total_items': 0,
                     'total_pages': 0,
@@ -41,9 +42,9 @@ class CustomPageNumberPagination(PageNumberPagination):
                     'prev_page': None,
                 },
                 'results': None
-            }
+            })
 
-        return {
+        return Response({
             'pagination': {
                 'total_items': self.page.paginator.count,
                 'total_pages': self.page.paginator.num_pages,
@@ -53,4 +54,4 @@ class CustomPageNumberPagination(PageNumberPagination):
                 'prev_page': self.page.previous_page_number() if self.page.has_previous() else None,
             },
             'results': data
-        }
+        })
