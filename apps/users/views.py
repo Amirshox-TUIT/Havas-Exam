@@ -1,16 +1,20 @@
+from typing import Any
+
 from rest_framework.generics import CreateAPIView, get_object_or_404, RetrieveUpdateAPIView, UpdateAPIView
-from rest_framework import status
+from rest_framework import status, generics, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import PhoneOTP
+from .models.user import PhoneOTP
+from .models.device import Device
 from .serializers import VerifySerializer, RegisterSerializer, ProfileRetrieveUpdateSerializer, LoginSerializer, \
-    ForgotPasswordSerializer, SetPasswordSerializer, UpdatePasswordSerializer
-from .utils import generate_password, generate_6_digit_code, expiry_in_minutes, generate_username, register_device
+    ForgotPasswordSerializer, SetPasswordSerializer, UpdatePasswordSerializer, DeviceRegisterSerializer
+from .utils import generate_password, generate_6_digit_code, expiry_in_minutes, generate_username
 from django.contrib.auth import get_user_model, authenticate
 
 from ..shared.exceptions.custom_exceptions import CustomException
+from ..shared.permissions.mobile import IsMobileUser
 from ..shared.utils.custom_response import CustomResponse
 
 User = get_user_model()
@@ -71,9 +75,10 @@ class RegisterAPIView(APIView):
 
 class VerifyCodeAPIView(APIView):
     permission_classes = (AllowAny,)
+    serializer_class = VerifySerializer
 
     def post(self, request):
-        serializer = VerifySerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data["phone"]
         code = serializer.validated_data["code"]
@@ -109,7 +114,6 @@ class VerifyCodeAPIView(APIView):
             tokens = user.generate_jwt_tokens()
             user.is_active = True
             user.save()
-            register_device(request, user)
 
             return CustomResponse.success(
                 request=request,
@@ -136,9 +140,10 @@ class VerifyCodeAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone']
         password = serializer.validated_data['password']
@@ -297,3 +302,43 @@ class ProfileRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs, partial=True)
+
+
+class DeviceRegisterCreateAPIView(generics.CreateAPIView):
+    """
+    Register device anonymously (no login required).
+    Returns a device_token for future reference.
+    """
+    serializer_class = DeviceRegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def __init__(self, **kwargs: Any):
+        super().__init__(**kwargs)
+        self.device = None
+
+    def perform_create(self, serializer):
+        device = serializer.save()
+        self.device = device
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        response.data['device_token'] = str(self.device.device_token)
+        return CustomResponse.success(
+            message_key="SUCCESS_MESSAGE",
+            data=response.data,
+            status_code=status.HTTP_201_CREATED
+        )
+
+
+class DeviceListApiView(generics.ListAPIView):
+    queryset = Device.objects.all()
+    serializer_class = DeviceRegisterSerializer
+    permission_classes = [IsMobileUser]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return CustomResponse.success(
+            message_key="SUCCESS_MESSAGE",
+            data=serializer.data
+        )

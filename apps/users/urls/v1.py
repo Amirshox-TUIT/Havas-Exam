@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.users import views
+from apps.users.views import DeviceRegisterCreateAPIView, DeviceListApiView
 
 app_name = 'users'
 
@@ -13,4 +14,9 @@ urlpatterns = [
     path('profile/', views.ProfileRetrieveUpdateAPIView.as_view(), name='profile'),
     path('set-password/', views.SetPasswordAPIView.as_view(), name='set-password'),
     path('update-password/', views.UpdatePasswordAPIView.as_view(), name='update-password'),
+]
+
+urlpatterns +=[
+    path('devices/', DeviceRegisterCreateAPIView.as_view(), name='device-register'),
+    path('devices/list/', DeviceListApiView.as_view(), name='device-list'),
 ]

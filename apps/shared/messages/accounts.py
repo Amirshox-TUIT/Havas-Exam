@@ -156,4 +156,14 @@ ACCOUNT_MESSAGES: Dict[str, MessageTemplate] = {
         },
         "status_code": 200
     },
+    "TOKEN_IS_NOT_PROVIDED": {
+        "id": "TOKEN_IS_NOT_PROVIDED",
+        "messages": {
+            "en": "Authorization token is not provided",
+            "uz": "Avtorizatsiya tokeni taqdim etilmagan",
+            "ru": "Токен авторизации не предоставлен"
+        },
+        "status_code": 401
+},
+
 }

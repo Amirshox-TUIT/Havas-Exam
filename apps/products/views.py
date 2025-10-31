@@ -1,24 +1,24 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, CreateAPIView
+from rest_framework.generics import get_object_or_404, CreateAPIView, \
+    ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from apps.products.models import Product, ProductRating
-from apps.products.serializers import ProductListCreateSerializer, ProductRetrieveUpdateDestroySerializer, \
+from apps.products.serializers import ProductListSerializer, ProductRetrieveSerializer, \
     ProductRatingCreateSerializer
+from apps.shared.permissions.mobile import IsMobileUser, IsAuthenticatedOrMobileUser
 from apps.shared.utils.custom_pagination import CustomPageNumberPagination
 from apps.shared.utils.custom_response import CustomResponse
 
 
-class ProductListCreateAPIView(ListCreateAPIView):
+class ProductListAPIView(ListAPIView):
     queryset = Product.objects.filter(is_available=True)
-    serializer_class = ProductListCreateSerializer
+    serializer_class = ProductListSerializer
     pagination_class = CustomPageNumberPagination
 
     def get_permissions(self):
-        if self.request.method == 'POST':
-            return [IsAdminUser()]
-        return [IsAuthenticated()]
+        return [IsAuthenticatedOrMobileUser()]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -31,39 +31,29 @@ class ProductListCreateAPIView(ListCreateAPIView):
         return CustomResponse.success(data=serializer.data, status_code=status.HTTP_200_OK)
 
 
-class ProductRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+class ProductRetrieveAPIView(RetrieveAPIView):
     queryset = Product.objects.filter(is_available=True)
-    serializer_class = ProductRetrieveUpdateDestroySerializer
+    serializer_class = ProductRetrieveSerializer
     pagination_class = CustomPageNumberPagination
 
-
+    def get_permissions(self):
+        return [IsAuthenticatedOrMobileUser()]
 
     def get_object(self):
         return get_object_or_404(Product, pk=self.kwargs['pk'], is_available=True)
 
-    def delete(self, request, *args, **kwargs):
-        product = self.get_object()
-        product.is_available = False
-        product.save()
-        return CustomResponse.success(status_code=status.HTTP_204_NO_CONTENT)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+    def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            instance._prefetched_objects_cache = {}
-
+        serializer = self.get_serializer(instance)
         return CustomResponse.success(data=serializer.data, status_code=status.HTTP_200_OK)
 
 
 class ProductRatingCreateAPIView(CreateAPIView):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductRatingCreateSerializer
-    permission_classes = (IsAuthenticated,)
+
+    def get_permissions(self):
+        return [IsAuthenticatedOrMobileUser()]
 
     def get_object(self):
         return get_object_or_404(Product, pk=self.kwargs['pk'], is_available=True)
