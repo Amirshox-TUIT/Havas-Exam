@@ -1,9 +1,12 @@
 from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.text import slugify
+
+from apps.users.models.device import Device
 
 User = get_user_model()
 
@@ -23,7 +26,11 @@ class ProductCategory(models.TextChoices):
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=100)
+    media_files = GenericRelation(
+        'shared.Media',
+        related_query_name='products'
+    )
+    title = models.CharField(max_length=100, db_index=True)
     description = models.TextField()
     price = models.DecimalField(decimal_places=2, max_digits=10)
     quantity = models.IntegerField()
@@ -36,25 +43,16 @@ class Product(models.Model):
     category = models.CharField(
         max_length=12,
         choices=ProductCategory.choices,
-        default=ProductCategory.ALL
+        default=ProductCategory.ALL,
+        db_index=True
     )
     discount = models.PositiveSmallIntegerField(default=0)
-    image = models.ImageField(null=True, blank=True, upload_to='products/')
-    slug = models.SlugField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def in_stock(self):
         return self.quantity > 0
-
-    def save(self, *args, **kwargs):
-        new_slug = slugify(self.title)
-        if not self.slug or new_slug != self.slug:
-            
-
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
 
     @property
     def discount_price(self):
@@ -70,13 +68,12 @@ class Product(models.Model):
 
 
 class ProductRating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='product_ratings')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ratings')
     rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
     def __str__(self):
-        name = self.user.first_name if self.user.first_name else 'unknown'
-        return f"{name} - {self.product.title}-{self.rating}"
+        return f"{self.product.title} - {self.rating}"
 
     class Meta:
         verbose_name_plural = "Ratings"

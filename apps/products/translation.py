@@ -3,7 +3,7 @@ from .models import Product, Measurement, ProductCategory
 
 
 class ProductTranslationOptions(TranslationOptions):
-    fields = ('title', 'description', 'slug')
+    fields = ('title', 'description')
 
 
 translator.register(Product, ProductTranslationOptions)

@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.generics import get_object_or_404, CreateAPIView, \
     ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from apps.products.models import Product, ProductRating
@@ -16,9 +16,8 @@ class ProductListAPIView(ListAPIView):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductListSerializer
     pagination_class = CustomPageNumberPagination
-
-    def get_permissions(self):
-        return [IsAuthenticatedOrMobileUser()]
+    # permission_classes = [IsMobileUser | IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -35,9 +34,8 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductRetrieveSerializer
     pagination_class = CustomPageNumberPagination
-
-    def get_permissions(self):
-        return [IsAuthenticatedOrMobileUser()]
+    # permission_classes = [IsMobileUser | IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_object(self):
         return get_object_or_404(Product, pk=self.kwargs['pk'], is_available=True)
@@ -51,9 +49,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 class ProductRatingCreateAPIView(CreateAPIView):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductRatingCreateSerializer
-
-    def get_permissions(self):
-        return [IsAuthenticatedOrMobileUser()]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return get_object_or_404(Product, pk=self.kwargs['pk'], is_available=True)
@@ -62,7 +58,7 @@ class ProductRatingCreateAPIView(CreateAPIView):
         user = self.request.user
         product = self.get_object()
         if ProductRating.objects.filter(user=user, product=product).exists():
-            return Response({'message': 'Product already rated.'}, status=status.HTTP_409_CONFLICT)
+            return CustomResponse.error(message_key='VALIDATION_ERROR', data={'message': 'Product already rated.'}, status_code=status.HTTP_409_CONFLICT)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
