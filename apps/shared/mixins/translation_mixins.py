@@ -202,13 +202,7 @@ class TranslatedFieldsReadMixin:
         return data
 
     def _get_language(self, request):
-        return 'uz'
-        # if not request:
-        #     return 'ru'
-        # lang = getattr(request, 'lang', 'ru').lower()
-        # from apps.shared.models import Language
-        # valid = [l[0].lower() for l in Language.choices]
-        # return lang if lang in valid else 'ru'
+        return request.lang
 
     def _get_media(self, instance, field_name, language):
         is_list = field_name.endswith('s')

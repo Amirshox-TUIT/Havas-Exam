@@ -1,6 +1,5 @@
 from django.urls import path
-
-from apps.admins.views import recipes, questionnaire
+from apps.admins.views import recipes, questionnaire, histories, products
 from apps.admins.views import users
 
 app_name = 'admins'
@@ -21,4 +20,8 @@ urlpatterns = [
     path("questions/<int:pk>/", questionnaire.QuestionRetrieveUpdateDestroyAPIView.as_view()),
     path("questions/<int:question_id>/answers/", questionnaire.AnswerCreateAPIView.as_view()),
     path("answers/<int:pk>/", questionnaire.AnswerRetrieveUpdateDestroyAPIView.as_view()),
+    path('histories/', histories.HistoryListCreateAPIView.as_view(), name='histories_list'),
+    path('histories/<int:pk>/', histories.HistoryRetrieveUpdateDestroyAPIView.as_view(), name='histories_detail'),
+    path('products/', products.ProductAdminListCreateAPIView.as_view(), name='product-list'),
+    path('products/<int:pk>/', products.ProductAdminRetrieveUpdateDestroyAPIView.as_view(), name='product-detail'),
 ]

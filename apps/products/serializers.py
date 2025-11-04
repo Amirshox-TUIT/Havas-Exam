@@ -35,37 +35,6 @@ class ProductListSerializer(ProductTranslationMixin, TranslatedFieldsReadMixin, 
     def get_in_stock(self, obj):
         return obj.in_stock()
 
-    # def validate_title_(self, title):
-    #     if len(title.strip()) < 5:
-    #         raise serializers.ValidationError('Title must be at least 5 characters')
-    #     return title
-    #
-    # def validate_description(self, description):
-    #     if len(description.strip()) < 30:
-    #         raise serializers.ValidationError('Description must be at least 30 characters')
-    #     return description
-    #
-    # def validate_price(self, price):
-    #     if price <= 0:
-    #         raise serializers.ValidationError('Price must be greater than 0')
-    #     return price
-    #
-    # def validate_discount(self, discount):
-    #     if discount < 0:
-    #         raise serializers.ValidationError('Discount must be greater than 0')
-    #     return discount
-    #
-    # def validate_quantity(self, quantity):
-    #     if quantity < 0:
-    #         raise serializers.ValidationError('Quantity must be greater than 0')
-    #
-    #     return quantity
-    #
-    # def validate_weight(self, weight):
-    #     if weight and weight < 0:
-    #         raise serializers.ValidationError('Weight must be greater than 0')
-    #     return weight
-
 
 class ProductRetrieveSerializer(ProductTranslationMixin, TranslatedFieldsReadMixin, serializers.ModelSerializer):
     discount_price = serializers.SerializerMethodField()
@@ -88,36 +57,6 @@ class ProductRetrieveSerializer(ProductTranslationMixin, TranslatedFieldsReadMix
 
     def get_in_stock(self, obj):
         return obj.in_stock()
-
-    # def validate_title(self, title):
-    #     if len(title.strip()) < 5:
-    #         raise serializers.ValidationError('Title must be at least 5 characters')
-    #     return title
-    #
-    # def validate_description(self, description):
-    #     if len(description.strip()) < 30:
-    #         raise serializers.ValidationError('Description must be at least 30 characters')
-    #     return description
-    #
-    # def validate_price(self, price):
-    #     if price <= 0:
-    #         raise serializers.ValidationError('Price must be greater than 0')
-    #     return price
-    #
-    # def validate_discount(self, discount):
-    #     if discount < 0:
-    #         raise serializers.ValidationError('Discount must be greater than 0')
-    #     return discount
-    #
-    # def validate_quantity(self, quantity):
-    #     if quantity < 0:
-    #         raise serializers.ValidationError('Quantity must be greater than 0')
-    #     return quantity
-    #
-    # def validate_weight(self, weight):
-    #     if weight and weight < 0:
-    #         raise serializers.ValidationError('Weight must be greater than 0')
-    #     return weight
 
 
 class ProductRatingCreateSerializer(serializers.ModelSerializer):
