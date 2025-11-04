@@ -16,8 +16,7 @@ class ProductListAPIView(ListAPIView):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductListSerializer
     pagination_class = CustomPageNumberPagination
-    # permission_classes = [IsMobileUser | IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsMobileUser | IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

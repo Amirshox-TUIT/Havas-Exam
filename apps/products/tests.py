@@ -17,7 +17,7 @@ class ProductTestCase(APITestCase):
         self.client = APIClient()
 
         self.admin_user = User.objects.create_superuser(
-            username="admin",
+            username="admins",
             phone="+998901111111",
             password="admin123",
             is_active=True
@@ -71,7 +71,7 @@ class ProductTestCase(APITestCase):
 class ProductListAPIViewTest(ProductTestCase):
     """Tests for ProductListAPIView"""
     def test_list_products_with_admin_user(self):
-        """Test listing products with admin user"""
+        """Test listing products with admins user"""
         self.client.login(user=self.admin_user)
         response = self.client.get(self.list_url)
 
@@ -152,7 +152,7 @@ class ProductRetrieveAPIViewTest(ProductTestCase):
     """Tests for ProductRetrieveAPIView"""
 
     def test_retrieve_product_with_admin_user(self):
-        """Test retrieving a product with admin user"""
+        """Test retrieving a product with admins user"""
         self.client.login(user=self.admin_user)
         response = self.client.get(self.detail_url(self.product1.id))
 
@@ -228,7 +228,7 @@ class ProductRatingCreateAPIViewTest(ProductTestCase):
     """Tests for ProductRatingCreateAPIView"""
 
     def test_create_rating_with_admin_user(self):
-        """Test creating a rating with admin user"""
+        """Test creating a rating with admins user"""
         self.client.login(user=self.admin_user)
         data = {'rating': 4}
 

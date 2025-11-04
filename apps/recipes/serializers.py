@@ -3,7 +3,6 @@ from rest_framework import serializers
 from apps.products.models import Product
 from apps.recipes.models import Recipe, RecipesCategory, RecipesProduct, PreparationSteps, RecipesRating
 from apps.shared.mixins.translation_mixins import (
-    TranslatedFieldsWriteMixin,
     TranslatedFieldsReadMixin
 )
 

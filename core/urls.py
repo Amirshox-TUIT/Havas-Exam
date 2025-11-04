@@ -23,7 +23,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admins/', admin.site.urls),
     path('api/v1/', include('apps.urls.v1')),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

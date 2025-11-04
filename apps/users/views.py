@@ -25,7 +25,7 @@ MAX_ATTEMPTS = 10
 
 class RegisterAPIView(APIView):
     serializer_class = RegisterSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsMobileUser,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -74,7 +74,7 @@ class RegisterAPIView(APIView):
 
 
 class VerifyCodeAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsMobileUser,)
     serializer_class = VerifySerializer
 
     def post(self, request):
@@ -110,11 +110,12 @@ class VerifyCodeAPIView(APIView):
             otp.used = True
             otp.save()
 
+            device = Device.objects.get(device_token=request.headers.get("Token"))
             user = get_object_or_404(User, phone=phone)
             tokens = user.generate_jwt_tokens()
             user.is_active = True
             user.save()
-
+            device.user = user
             return CustomResponse.success(
                 request=request,
                 message_key='PHONE_VERIFIED',
@@ -139,7 +140,7 @@ class VerifyCodeAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsMobileUser,)
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -157,7 +158,9 @@ class LoginAPIView(APIView):
 
         tokens = user.generate_jwt_tokens()
         user.is_active = True
+        device = Device.objects.get(device_token=request.headers.get("Token"))
         user.save()
+        device.user = user
         return CustomResponse.success(
             request=request,
             data={
@@ -171,7 +174,7 @@ class LoginAPIView(APIView):
 
 class ForgotPasswordAPIView(APIView):
     serializer_class = ForgotPasswordSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsMobileUser,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -290,7 +293,7 @@ class UpdatePasswordAPIView(UpdateAPIView):
 
 
 class ProfileRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = ProfileRetrieveUpdateSerializer
 
@@ -310,7 +313,7 @@ class DeviceRegisterCreateAPIView(generics.CreateAPIView):
     Returns a device_token for future reference.
     """
     serializer_class = DeviceRegisterSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsMobileUser]
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
