@@ -202,7 +202,7 @@ class TranslatedFieldsReadMixin:
         return data
 
     def _get_language(self, request):
-        return request.lang
+        return 'en'
 
     def _get_media(self, instance, field_name, language):
         is_list = field_name.endswith('s')

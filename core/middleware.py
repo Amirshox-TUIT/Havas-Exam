@@ -21,4 +21,4 @@ class DeviceLanguageMiddleware(MiddlewareMixin):
 
         request.device = device
         request.lang = lang
-        print(device)
+        print(request.device)

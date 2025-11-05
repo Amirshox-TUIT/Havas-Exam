@@ -110,12 +110,12 @@ class VerifyCodeAPIView(APIView):
             otp.used = True
             otp.save()
 
-            device = Device.objects.get(device_token=request.headers.get("Token"))
             user = get_object_or_404(User, phone=phone)
             tokens = user.generate_jwt_tokens()
             user.is_active = True
             user.save()
-            device.user = user
+            request.device.user = user
+            request.device.save()
             return CustomResponse.success(
                 request=request,
                 message_key='PHONE_VERIFIED',
@@ -313,7 +313,7 @@ class DeviceRegisterCreateAPIView(generics.CreateAPIView):
     Returns a device_token for future reference.
     """
     serializer_class = DeviceRegisterSerializer
-    permission_classes = [IsMobileUser]
+    permission_classes = [AllowAny]
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
