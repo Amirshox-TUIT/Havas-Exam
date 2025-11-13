@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name amirshox.uz www.amirshox.uz 159.89.19.244;
+    server_name furniture.amirshox.uz www.furniture.amirshox.uz 159.89.19.244;
 
     location /static/ {
         alias /vol/web/static/;
